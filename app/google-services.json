@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1073313949491",
+    "project_id": "videogames-7f339",
+    "storage_bucket": "videogames-7f339.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1073313949491:android:c405bafb71bcf2d5f2c046",
+        "android_client_info": {
+          "package_name": "ir.mkhakpaki.videogames"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1073313949491-d4d9fl9iqhhcm2ldt0k6akkj0upq0d8j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACCGR4rmmGnE70UqvcjLfGFdtgVDjMj4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1073313949491-d4d9fl9iqhhcm2ldt0k6akkj0upq0d8j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
