@@ -1,10 +1,12 @@
 package ir.mkhakpaki.videogames.db
 
+import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import ir.mkhakpaki.videogames.util.Constants
 
+@Dao
 interface GameDao {
 
     @Query("SELECT * FROM GameEntity")
