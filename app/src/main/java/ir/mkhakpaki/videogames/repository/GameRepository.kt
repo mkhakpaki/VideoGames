@@ -1,5 +1,6 @@
 package ir.mkhakpaki.videogames.repository
 
+import android.util.Log
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity
 import ir.mkhakpaki.videogames.network.NetworkHelper
@@ -25,23 +26,29 @@ class GameRepository @Inject constructor(
     val flowGames: Flow<RepoResponse<GameListModel, ErrorModel>> = channelGames.consumeAsFlow()
 
     suspend fun getAllGames(page: Int?) {
+        Log.i("GAMESSS", " getAllGames")
         getGamesFromDB(0, null)
         requestGameList(page)
     }
 
     private suspend fun getGamesFromDB(currentPage:Int, nextPage:Int?) {
-        val dbGames = gameDao.getAll()
-        if (dbGames.isNotEmpty()) {
-            channelGames.send(RepoResponse.Data(GameListModel(
+        Log.i("GAMESSS", " getGamesFromDB")
+        withContext(Dispatchers.IO) {
+            val dbGames = gameDao.getAll()
+            if (dbGames.isNotEmpty()) {
+                channelGames.send(RepoResponse.Data(GameListModel(
                     page = currentPage,
                     nextPage = nextPage,
                     games = dbGames.map { mapDbGameToGameModel(it) }.toMutableList())))
+            }
         }
     }
     private suspend fun requestGameList(page: Int?) {
+        Log.i("GAMESSS", "requestGameList: ")
         withContext(Dispatchers.IO) {
             val result = networkHelper.listGames(page)
 
+            Log.i("GAMESSS", "requestGameList: ${result.code()}")
             if (result.code() == Constants.NETWORK_OK) {
 
                 result.body()?.let {
@@ -72,7 +79,7 @@ class GameRepository @Inject constructor(
     }
     private fun mapDbGameToGameModel(gameEntity: GameEntity): GameModel {
         return GameModel(
-                id = gameEntity.id,
+                gameId = gameEntity.id,
                 name = gameEntity.name,
                 image = gameEntity.backgroundImage,
                 rating = gameEntity.rating,
