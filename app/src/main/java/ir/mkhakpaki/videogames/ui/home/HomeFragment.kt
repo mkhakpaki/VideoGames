@@ -1,25 +1,23 @@
 package ir.mkhakpaki.videogames.ui.home
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.di.DaggerHomeComponent
 import ir.mkhakpaki.videogames.di.findAppComponent
+import kotlinx.android.synthetic.main.fragment_home.*
 import javax.inject.Inject
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(R.layout.fragment_home) {
 
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by viewModels<HomeViewModel> { viewModelFactory }
+    private var sliderAdapter: SliderAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,17 +27,28 @@ class HomeFragment : Fragment() {
             .inject(this)
     }
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupView()
+        observe()
+    }
 
-        val root = inflater.inflate(R.layout.fragment_home, container, false)
-        val textView: TextView = root.findViewById(R.id.text_home)
-        viewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-        return root
+    private fun observe() {
+        viewModel.itemsLiveData.observe(viewLifecycleOwner) {
+            if (it.size > 3) {
+                sliderAdapter?.submitItems(it.subList(0, 3))
+            }
+        }
+    }
+
+    private fun setupView() {
+        sliderAdapter = SliderAdapter(requireContext())
+        sliderViewPager.adapter = sliderAdapter
+        tabLayout.setupWithViewPager(sliderViewPager)
+    }
+
+    override fun onDestroyView() {
+        sliderAdapter = null
+        super.onDestroyView()
     }
 }

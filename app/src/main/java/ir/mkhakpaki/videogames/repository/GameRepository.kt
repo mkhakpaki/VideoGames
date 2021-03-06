@@ -18,86 +18,97 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GameRepository @Inject constructor(
-        private val networkHelper: NetworkHelper,
-        private val gameDao: GameDao
+    private val networkHelper: NetworkHelper,
+    private val gameDao: GameDao
 ) {
 
     private val channelGames = Channel<RepoResponse<GameListModel, ErrorModel>>()
     val flowGames: Flow<RepoResponse<GameListModel, ErrorModel>> = channelGames.consumeAsFlow()
 
     suspend fun getAllGames(page: Int?) {
-        Log.i("GAMESSS", " getAllGames")
         getGamesFromDB(0, null)
         requestGameList(page)
     }
 
-    private suspend fun getGamesFromDB(currentPage:Int, nextPage:Int?) {
-        Log.i("GAMESSS", " getGamesFromDB")
+    private suspend fun getGamesFromDB(currentPage: Int, nextPage: Int?) {
         withContext(Dispatchers.IO) {
             val dbGames = gameDao.getAll()
             if (dbGames.isNotEmpty()) {
-                channelGames.send(RepoResponse.Data(GameListModel(
-                    page = currentPage,
-                    nextPage = nextPage,
-                    games = dbGames.map { mapDbGameToGameModel(it) }.toMutableList())))
+                channelGames.send(
+                    RepoResponse.Data(
+                        GameListModel(
+                            page = currentPage,
+                            nextPage = nextPage,
+                            games = dbGames.map { mapDbGameToGameModel(it) }.toMutableList()
+                        )
+                    )
+                )
             }
         }
     }
+
     private suspend fun requestGameList(page: Int?) {
-        Log.i("GAMESSS", "requestGameList: ")
         withContext(Dispatchers.IO) {
             val result = networkHelper.listGames(page)
 
-            Log.i("GAMESSS", "requestGameList: ${result.code()}")
             if (result.code() == Constants.NETWORK_OK) {
 
                 result.body()?.let {
 
                     storeGames(it)
-                    getGamesFromDB(page?:0, extractNextPage(it.nextPage))
+                    getGamesFromDB(page ?: 0, extractNextPage(it.nextPage))
 
                 } ?: kotlin.run {
 
-                    RepoResponse.Error(ErrorModel(code = Constants.NOT_FOUND, message = result.message()))
+                    RepoResponse.Error(
+                        ErrorModel(
+                            code = Constants.NOT_FOUND,
+                            message = result.message()
+                        )
+                    )
 
                 }
 
             } else {
                 channelGames.send(
-                        RepoResponse.Error(ErrorModel(code = result.code(), message = result.message()))
+                    RepoResponse.Error(ErrorModel(code = result.code(), message = result.message()))
                 )
             }
 
         }
     }
 
-    private fun extractNextPage(nextPage: String?) : Int? {
+    private fun extractNextPage(nextPage: String?): Int? {
         nextPage?.substringAfter("page=")?.let {
             return it.toInt()
         }
         return null
     }
+
     private fun mapDbGameToGameModel(gameEntity: GameEntity): GameModel {
         return GameModel(
-                gameId = gameEntity.id,
-                name = gameEntity.name,
-                image = gameEntity.backgroundImage,
-                rating = gameEntity.rating,
-                releaseDate = gameEntity.releaseDate,
-                isLiked = gameEntity.isLiked
+            id = gameEntity.id.toString(),
+            gameId = gameEntity.id,
+            name = gameEntity.name,
+            image = gameEntity.backgroundImage,
+            rating = gameEntity.rating,
+            releaseDate = gameEntity.releaseDate,
+            isLiked = gameEntity.isLiked
         )
     }
 
     private fun storeGames(gameListPojo: GameListPojo) {
-        gameListPojo.gameList?.let {gameList->
-            gameDao.insertAll(*gameList.map { GameEntity(
+        gameListPojo.gameList?.let { gameList ->
+            gameDao.insertAll(*gameList.map {
+                GameEntity(
                     id = it.id ?: 0,
                     name = it.name ?: "",
                     backgroundImage = it.backgroundImage,
                     rating = it.rating,
                     releaseDate = it.releaseDate,
                     isLiked = false
-            ) }.toTypedArray())
+                )
+            }.toTypedArray())
         }
     }
 
