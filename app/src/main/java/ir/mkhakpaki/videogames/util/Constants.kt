@@ -1,6 +1,8 @@
 package ir.mkhakpaki.videogames.util
 
 object Constants {
+    const val NOT_FOUND = 404
+    const val NETWORK_OK = 200
     const val NAME = "name"
     const val IMAGE_URL = "image_url"
     const val RATING = "rating"

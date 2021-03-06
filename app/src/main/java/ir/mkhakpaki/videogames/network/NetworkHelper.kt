@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class NetworkHelper @Inject constructor(private val restApi: RestApi) {
 
-    suspend fun listGames():
-            Response<GameListPojo> = restApi.listGames().await()
+    suspend fun listGames(page:Int?):
+            Response<GameListPojo> = restApi.listGames(page ?: 1).await()
 
     suspend fun getGameDetails(id: Long):
             Response<GamePojo> = restApi.getGameDetails(id).await()

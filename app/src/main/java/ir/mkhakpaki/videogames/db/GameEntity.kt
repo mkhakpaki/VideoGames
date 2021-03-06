@@ -7,7 +7,7 @@ import ir.mkhakpaki.videogames.util.Constants
 
 @Entity
 data class GameEntity(
-    @PrimaryKey val id:Int,
+    @PrimaryKey val id:Long,
     @ColumnInfo(name = Constants.NAME) val name: String,
     @ColumnInfo(name = Constants.IMAGE_URL) val backgroundImage: String?,
     @ColumnInfo(name = Constants.RATING) val rating: Float?,
