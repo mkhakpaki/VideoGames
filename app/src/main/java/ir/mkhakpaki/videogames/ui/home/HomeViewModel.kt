@@ -67,17 +67,11 @@ class HomeViewModel
                 )
             })
 
-            appendViewItems()
+            if (!isEndOfList) {
+                items.add(loadingItem)
+            }
 
             _itemsLiveData.postValue(items.toMutableList())
-        }
-    }
-
-    private fun appendViewItems() {
-        when (_stateViewLiveData.value) {
-            ViewStateModel.LOADING -> items.add(loadingItem)
-            ViewStateModel.ERROR -> items.add(errorItem)
-            else -> Unit
         }
     }
 

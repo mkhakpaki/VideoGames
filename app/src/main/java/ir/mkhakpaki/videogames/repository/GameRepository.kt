@@ -4,6 +4,7 @@ import android.util.Log
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity
 import ir.mkhakpaki.videogames.network.NetworkHelper
+import ir.mkhakpaki.videogames.network.NetworkResult
 import ir.mkhakpaki.videogames.network.pojo.GameListPojo
 import ir.mkhakpaki.videogames.ui.model.ErrorModel
 import ir.mkhakpaki.videogames.ui.model.GameListModel
@@ -50,29 +51,22 @@ class GameRepository @Inject constructor(
     suspend fun requestGameList(page: Int?) {
         withContext(Dispatchers.IO) {
             val result = networkHelper.listGames(page)
-
-            if (result.code() == Constants.NETWORK_OK) {
-
-                result.body()?.let {
-
-                    storeGames(it, page ?: 1)
-                    getGamesFromDB(it.nextPage == null, extractNextPage(it.nextPage))
-
-                } ?: kotlin.run {
-
-                    RepoResponse.Error(
-                        ErrorModel(
-                            code = Constants.NOT_FOUND,
-                            message = result.message()
-                        )
-                    )
-
+            when (result) {
+                is NetworkResult.Success -> {
+                    val gameLisPojo = result.data
+                    storeGames(gameLisPojo, page ?: 1)
+                    getGamesFromDB(gameLisPojo.nextPage == null, extractNextPage(gameLisPojo.nextPage))
                 }
-
-            } else {
-                channelGames.send(
-                    RepoResponse.Error(ErrorModel(code = result.code(), message = result.message()))
-                )
+                is NetworkResult.Error -> {
+                    channelGames.send(
+                        RepoResponse.Error(ErrorModel(code = result.error.code, message = result.error.message))
+                    )
+                }
+                is NetworkResult.Failure -> {
+                    channelGames.send(
+                        RepoResponse.Error(ErrorModel(exception = result.exception))
+                    )
+                }
             }
 
         }
