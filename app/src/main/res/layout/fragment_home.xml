@@ -6,16 +6,43 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <SearchView
+    <LinearLayout
         android:id="@+id/searchView"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="12dp"
-        android:queryHint="@string/search"/>
+        android:layout_marginTop="12dp">
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/searchTv"
+            android:hint="@string/search"
+            android:gravity="center_vertical"
+            android:textSize="18sp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textColorHint="@color/orange"
+            android:textColor="@color/black"
+            android:layout_height="match_parent"/>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/searchIv"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            app:tint="@color/orange"
+            app:srcCompat="@drawable/ic_search"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchView"
+        android:layout_marginHorizontal="12dp"
+        android:background="@color/orange"/>
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/sliderViewPager"
