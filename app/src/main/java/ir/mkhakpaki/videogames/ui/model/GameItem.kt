@@ -6,7 +6,7 @@ data class GameItem(
     private val type: Int,
     val id: Long,
     val game: GameModel? = null
-) : ItemType {
+) : ItemClass(type) {
 
     override val itemType: Int
         get() = type

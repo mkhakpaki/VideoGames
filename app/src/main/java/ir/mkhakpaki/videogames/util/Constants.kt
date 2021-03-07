@@ -3,7 +3,7 @@ package ir.mkhakpaki.videogames.util
 object Constants {
     const val VIEW_TYPE_LOADING = 1
     const val VIEW_TYPE_ERROR = 2
-    const val TYPE_GAME_ITEM_LIST = 3
+    const val TYPE_GAME_ITEM_LIST = 4
     const val NOT_FOUND = 404
     const val NETWORK_OK = 200
     const val NAME = "name"

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.DiffUtil
 import ir.mkhakpaki.videogames.repository.GameRepository
 import ir.mkhakpaki.videogames.ui.model.*
 import ir.mkhakpaki.videogames.util.Constants
@@ -95,6 +96,23 @@ class HomeViewModel
             items.add(errorItem)
         }
         _itemsLiveData.value = items.toMutableList()
+    }
+
+
+    val gamesDiff = object : DiffUtil.ItemCallback<GameItem>() {
+        override fun areItemsTheSame(
+            oldGame: GameItem,
+            newGame: GameItem
+        ): Boolean {
+            return oldGame.id == newGame.id
+        }
+
+        override fun areContentsTheSame(
+            oldGame: GameItem,
+            newGame: GameItem
+        ): Boolean {
+            return oldGame == newGame
+        }
     }
 
 }

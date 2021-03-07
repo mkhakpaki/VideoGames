@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import ir.mkhakpaki.videogames.R
@@ -37,14 +38,20 @@ class SliderAdapter (private val context: Context ) :
     }
     override fun instantiateItem(view: ViewGroup, position: Int): Any {
         val inflater: LayoutInflater = LayoutInflater.from(context)
-        val imageLayout: View = inflater.inflate(R.layout.item_slider, view, false)
+        val imageLayout: View = inflater.inflate(R.layout.item_slide, view, false)
 
         val imageView: AppCompatImageView = imageLayout.findViewById(R.id.image) as AppCompatImageView
+
+        val circularProgressDrawable = CircularProgressDrawable(context)
+        circularProgressDrawable.strokeWidth = 5f
+        circularProgressDrawable.centerRadius = 30f
+        circularProgressDrawable.start()
+
         Glide
             .with(context)
             .load(items[position].game?.image)
             .centerCrop()
-            .placeholder(android.R.drawable.progress_indeterminate_horizontal)
+            .placeholder(circularProgressDrawable)
             .into(imageView)
         view.addView(imageLayout)
         return imageLayout
