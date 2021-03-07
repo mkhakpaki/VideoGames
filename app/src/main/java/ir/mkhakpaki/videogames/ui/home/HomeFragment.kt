@@ -84,7 +84,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
         recyclerAdapter = GamesRecyclerAdapter(viewModel.gamesDiff, object : GameCallBack<GameItem>() {
-
+            override fun onTryAgain() {
+                viewModel.tryLoadMore()
+            }
         })
         gamesRv.layoutManager = layoutManager
         gamesRv.adapter = recyclerAdapter

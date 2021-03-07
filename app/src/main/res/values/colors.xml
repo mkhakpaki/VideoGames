@@ -8,5 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="bottom_tabs_background">#ff393939</color>
-    <color name="orange">#FF5722</color>
+    <color name="orange">@color/secondaryColor</color>
+    <color name="primaryColor">#78909c</color>
+    <color name="primaryLightColor">#a7c0cd</color>
+    <color name="primaryDarkColor">#4b636e</color>
+    <color name="secondaryColor">#ff5722</color>
+    <color name="secondaryLightColor">#ff8a50</color>
+    <color name="secondaryDarkColor">#c41c00</color>
+    <color name="primaryTextColor">#000000</color>
+    <color name="secondaryTextColor">#000000</color>
 </resources>

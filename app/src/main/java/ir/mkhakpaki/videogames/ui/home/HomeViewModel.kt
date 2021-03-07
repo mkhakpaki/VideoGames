@@ -84,6 +84,7 @@ class HomeViewModel
 
     private fun handleDataError(error: ErrorModel) {
         possibleError = error
+        isFetchingItems = false
         if (items.isEmpty()) {
             _stateViewLiveData.value = ViewStateModel.ERROR
             return
@@ -103,6 +104,13 @@ class HomeViewModel
         }
     }
 
+    fun tryLoadMore() {
+        isFetchingItems = false
+        items.remove(errorItem)
+        items.add(loadingItem)
+        _itemsLiveData.value = items.toMutableList()
+        loadMore()
+    }
 
     val gamesDiff = object : DiffUtil.ItemCallback<GameItem>() {
         override fun areItemsTheSame(
