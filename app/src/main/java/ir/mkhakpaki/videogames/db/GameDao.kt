@@ -6,7 +6,7 @@ import ir.mkhakpaki.videogames.util.Constants
 @Dao
 interface GameDao {
 
-    @Query("SELECT * FROM GameEntity")
+    @Query("SELECT * FROM GameEntity ORDER BY id ASC")
     fun getAll(): List<GameEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

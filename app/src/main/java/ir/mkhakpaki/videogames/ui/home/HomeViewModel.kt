@@ -1,6 +1,5 @@
 package ir.mkhakpaki.videogames.ui.home
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -27,7 +26,7 @@ class HomeViewModel
     private val loadingItem = GameItem.makeLoadingItem()
     private val errorItem = GameItem.makeErrorItem()
     private var isFetchingItems = false
-    private var nextPage: Int = 2
+    private var nextPage: Int? = 2
     private var isEndOfList = false
     private val items = mutableListOf<GameItem>()
     var possibleError: ErrorModel? = null
@@ -42,9 +41,11 @@ class HomeViewModel
                         val data = response.data
                         isFetchingItems = false
                         _stateViewLiveData.value = ViewStateModel.DATA
-                        nextPage = data.nextPage ?: -1
-                        Log.i("Games", "next page : $nextPage ")
-                        checkEndOfList()
+                        data.nextPage?.let {
+                            nextPage = it
+                        }
+
+                        checkEndOfList(data.ended)
                         prepareListItems(response.data.games)
                     }
                 }
@@ -80,8 +81,8 @@ class HomeViewModel
         }
     }
 
-    private fun checkEndOfList() {
-        isEndOfList = nextPage == -1
+    private fun checkEndOfList(ended: Boolean?) {
+        isEndOfList = ended == true
         if (isEndOfList) {
             _stateViewLiveData.value = ViewStateModel.LIST_END
         }

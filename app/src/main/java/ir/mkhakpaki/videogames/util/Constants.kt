@@ -7,6 +7,7 @@ object Constants {
     const val NOT_FOUND = 404
     const val NETWORK_OK = 200
     const val NAME = "name"
+    const val GAME_ID = "game_id"
     const val IMAGE_URL = "image_url"
     const val RATING = "rating"
     const val RELEASE_DATE = "release_date"
@@ -16,7 +17,7 @@ object Constants {
     const val WRITE_TIMEOUT = 15
     const val KEEP_ALIVE_TIME = 14
     const val MAX_IDLE_CONNECTIONS = 5
-    const val LIST_THRESHOLD = 5
+    const val LIST_THRESHOLD = 6
 }
 
 object API_PATH {

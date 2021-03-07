@@ -26,18 +26,18 @@ class GameRepository @Inject constructor(
     val flowGames: Flow<RepoResponse<GameListModel, ErrorModel>> = channelGames.consumeAsFlow()
 
     suspend fun getAllGames(page: Int?) {
-        getGamesFromDB(1, 2)
+        getGamesFromDB(null, null)
         requestGameList(page)
     }
 
-    private suspend fun getGamesFromDB(currentPage: Int, nextPage: Int?) {
+    private suspend fun getGamesFromDB(ended:Boolean?, nextPage: Int?) {
         withContext(Dispatchers.IO) {
             val dbGames = gameDao.getAll()
             if (dbGames.isNotEmpty()) {
                 channelGames.send(
                     RepoResponse.Data(
                         GameListModel(
-                            page = currentPage,
+                            ended = ended,
                             nextPage = nextPage,
                             games = dbGames.map { mapDbGameToGameModel(it) }.toMutableList()
                         )
@@ -56,7 +56,7 @@ class GameRepository @Inject constructor(
                 result.body()?.let {
 
                     storeGames(it, page ?: 1)
-                    getGamesFromDB(page ?: 1, extractNextPage(it.nextPage))
+                    getGamesFromDB(it.nextPage == null, extractNextPage(it.nextPage))
 
                 } ?: kotlin.run {
 
@@ -87,8 +87,8 @@ class GameRepository @Inject constructor(
 
     private fun mapDbGameToGameModel(gameEntity: GameEntity): GameModel {
         return GameModel(
-            id = gameEntity.id.toString(),
-            gameId = gameEntity.id,
+            id = gameEntity.gameId.toString(),
+            gameId = gameEntity.gameId,
             name = gameEntity.name,
             image = gameEntity.backgroundImage,
             rating = gameEntity.rating,
@@ -104,7 +104,7 @@ class GameRepository @Inject constructor(
         gameListPojo.gameList?.let { gameList ->
             gameDao.insertAll(*gameList.map {
                 GameEntity(
-                    id = it.id ?: 0,
+                    gameId = it.id ?: 0,
                     name = it.name ?: "",
                     backgroundImage = it.backgroundImage,
                     rating = it.rating,
