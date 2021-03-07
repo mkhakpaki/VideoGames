@@ -109,7 +109,7 @@ object NetworkServiceGenerator {
         private fun makeRequestWithDefaultHeaders(request: Request): Request.Builder {
             return request.newBuilder().apply {
                 addHeader("Accept", "Application/JSON")
-                addHeader("x-rapidapi-key", "31cc6dad7fmsh806cf13ebb60734p1688ddjsnac373e8bc9ce")
+                addHeader("x-rapidapi-key", BuildConfig.XRapidAPiKey)
                 addHeader("x-rapidapi-host", "rawg-video-games-database.p.rapidapi.com")
             }
         }
