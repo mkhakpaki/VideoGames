@@ -26,7 +26,7 @@ class GameRepository @Inject constructor(
     val flowGames: Flow<RepoResponse<GameListModel, ErrorModel>> = channelGames.consumeAsFlow()
 
     suspend fun getAllGames(page: Int?) {
-        getGamesFromDB(0, null)
+        getGamesFromDB(1, 2)
         requestGameList(page)
     }
 
@@ -47,7 +47,7 @@ class GameRepository @Inject constructor(
         }
     }
 
-    private suspend fun requestGameList(page: Int?) {
+    suspend fun requestGameList(page: Int?) {
         withContext(Dispatchers.IO) {
             val result = networkHelper.listGames(page)
 

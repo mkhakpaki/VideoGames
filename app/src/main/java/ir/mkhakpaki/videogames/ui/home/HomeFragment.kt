@@ -12,7 +12,10 @@ import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.di.DaggerHomeComponent
 import ir.mkhakpaki.videogames.di.findAppComponent
 import ir.mkhakpaki.videogames.ui.model.GameItem
+import ir.mkhakpaki.videogames.ui.model.ViewStateModel
 import ir.mkhakpaki.videogames.util.GameCallBack
+import ir.mkhakpaki.videogames.util.ListLoadMoreListener
+import ir.mkhakpaki.videogames.util.OnLoadMoreListener
 import kotlinx.android.synthetic.main.fragment_home.*
 import javax.inject.Inject
 
@@ -25,6 +28,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var sliderAdapter: SliderAdapter? = null
     private var recyclerAdapter: GamesRecyclerAdapter? = null
     private var layoutManager: LinearLayoutManager? = null
+    private var listLoadMoreListener: ListLoadMoreListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +46,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private fun observe() {
         viewModel.itemsLiveData.observe(viewLifecycleOwner) {
-            Log.i("GAMES", "observe: ${it.size}")
+            listLoadMoreListener?.setLoaded(false)
             if (it.size > 3) {
                 sliderAdapter?.submitItems(it.subList(0, 3))
                 recyclerAdapter?.submitList(it.subList(3, it.size))
@@ -50,6 +54,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 recyclerAdapter?.submitList(it)
             }
         }
+
+        viewModel.stateViewLiveData.observe(viewLifecycleOwner) {
+            when (it) {
+                ViewStateModel.LIST_END -> {
+                    listLoadMoreListener?.ended = true
+                }
+            }
+        }
+
     }
 
     private fun setupView() {
@@ -58,6 +71,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         tabLayout.setupWithViewPager(sliderViewPager)
 
         layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+        layoutManager?.let {
+            listLoadMoreListener = ListLoadMoreListener(it)
+            listLoadMoreListener?.setOnLoadMoreListener(object : OnLoadMoreListener {
+                override fun onLoadMore() {
+                    viewModel.loadMore()
+                }
+
+            })
+            listLoadMoreListener?.let {
+                gamesRv.addOnScrollListener(it)
+            }
+        }
         recyclerAdapter = GamesRecyclerAdapter(viewModel.gamesDiff, object : GameCallBack<GameItem>() {
 
         })
@@ -69,6 +94,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         sliderAdapter = null
         recyclerAdapter = null
         layoutManager = null
+        listLoadMoreListener?.release()
+        listLoadMoreListener = null
         super.onDestroyView()
     }
 }

@@ -1,5 +1,6 @@
 package ir.mkhakpaki.videogames.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -42,6 +43,7 @@ class HomeViewModel
                         isFetchingItems = false
                         _stateViewLiveData.value = ViewStateModel.DATA
                         nextPage = data.nextPage ?: -1
+                        Log.i("Games", "next page : $nextPage ")
                         checkEndOfList()
                         prepareListItems(response.data.games)
                     }
@@ -96,6 +98,14 @@ class HomeViewModel
             items.add(errorItem)
         }
         _itemsLiveData.value = items.toMutableList()
+    }
+
+    fun loadMore() {
+        if (isFetchingItems || isEndOfList) return
+        isFetchingItems = true
+        viewModelScope.launch {
+            repository.requestGameList(nextPage)
+        }
     }
 
 

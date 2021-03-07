@@ -16,6 +16,7 @@ object Constants {
     const val WRITE_TIMEOUT = 15
     const val KEEP_ALIVE_TIME = 14
     const val MAX_IDLE_CONNECTIONS = 5
+    const val LIST_THRESHOLD = 5
 }
 
 object API_PATH {
