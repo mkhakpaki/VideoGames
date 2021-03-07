@@ -55,8 +55,8 @@ class GameRepository @Inject constructor(
 
                 result.body()?.let {
 
-                    storeGames(it)
-                    getGamesFromDB(page ?: 0, extractNextPage(it.nextPage))
+                    storeGames(it, page ?: 1)
+                    getGamesFromDB(page ?: 1, extractNextPage(it.nextPage))
 
                 } ?: kotlin.run {
 
@@ -97,7 +97,10 @@ class GameRepository @Inject constructor(
         )
     }
 
-    private fun storeGames(gameListPojo: GameListPojo) {
+    private fun storeGames(gameListPojo: GameListPojo, page: Int) {
+        if (page == 1) {
+            gameDao.clearGames()
+        }
         gameListPojo.gameList?.let { gameList ->
             gameDao.insertAll(*gameList.map {
                 GameEntity(
