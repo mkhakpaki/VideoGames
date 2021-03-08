@@ -80,7 +80,7 @@ class GameDetailsActivity : AppCompatActivity() {
         pbLoading.visibility = View.GONE
         scrollView.visibility = View.GONE
         errorTv.visibility = View.VISIBLE
-        errorTv.text = viewModel.possibleError?.message
+        errorTv.text = viewModel.possibleError?.message ?: getString(R.string.check_your_connection)
     }
 
     private fun loadingState() {

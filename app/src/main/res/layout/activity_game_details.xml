@@ -28,11 +28,13 @@
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/errorTv"
-        android:textSize="56sp"
+        android:textSize="48sp"
+        android:gravity="center"
         android:textStyle="bold"
+        android:paddingHorizontal="12dp"
         android:textColor="@color/secondaryDarkColor"
         android:visibility="gone"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
