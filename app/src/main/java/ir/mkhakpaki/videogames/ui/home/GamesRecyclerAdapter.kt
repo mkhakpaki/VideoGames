@@ -12,7 +12,7 @@ import ir.mkhakpaki.videogames.util.GameCallBack
 
 class GamesRecyclerAdapter (
     diffUtils: DiffUtil.ItemCallback<GameItem>,
-    gameCallBack: GameCallBack<GameItem>
+    private val gameCallBack: GameCallBack<GameItem>
 ) : BaseAdapter<GameItem>(diffUtils, gameCallBack) {
 
     override fun onCreateChildViewHolder(
@@ -22,7 +22,7 @@ class GamesRecyclerAdapter (
             RecyclerView.ViewHolder {
         return when (viewType) {
             TYPE_GAME_ITEM_LIST ->
-                GameHolder(createView(parent, R.layout.item_game))
+                GameHolder(createView(parent, R.layout.item_game), gameCallBack )
 
             else -> null!!
         }

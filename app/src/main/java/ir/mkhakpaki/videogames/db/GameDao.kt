@@ -17,4 +17,11 @@ interface GameDao {
 
     @Query("DELETE FROM GameEntity")
     fun clearGames()
+
+    @Query("SELECT * FROM GameEntity WHERE ${Constants.GAME_ID} = :gameId")
+    fun getGame(gameId:Long) : GameEntity
+
+    @Update(entity = GameEntity::class)
+    fun update(obj: GameEntity)
+
 }

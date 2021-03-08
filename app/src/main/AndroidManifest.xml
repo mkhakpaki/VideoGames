@@ -12,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.VideoGames">
-        <activity android:name=".ui.gameDetails.GameDetailsActivity"></activity>
 
         <service
             android:name=".fcm.MyFirebaseMessagingService"
@@ -21,7 +20,7 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
+        <activity android:name=".ui.gameDetails.GameDetailsActivity"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

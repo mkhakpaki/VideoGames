@@ -6,6 +6,7 @@ import ir.mkhakpaki.videogames.db.GameEntity
 import ir.mkhakpaki.videogames.network.NetworkHelper
 import ir.mkhakpaki.videogames.network.NetworkResult
 import ir.mkhakpaki.videogames.network.pojo.GameListPojo
+import ir.mkhakpaki.videogames.network.pojo.GamePojo
 import ir.mkhakpaki.videogames.ui.model.ErrorModel
 import ir.mkhakpaki.videogames.ui.model.GameListModel
 import ir.mkhakpaki.videogames.ui.model.GameModel
@@ -40,7 +41,7 @@ class GameRepository @Inject constructor(
                         GameListModel(
                             ended = ended,
                             nextPage = nextPage,
-                            games = dbGames.map { mapDbGameToGameModel(it) }.toMutableList()
+                            games = dbGames.map { GameModel(it) }.toMutableList()
                         )
                     )
                 )
@@ -79,18 +80,6 @@ class GameRepository @Inject constructor(
         return null
     }
 
-    private fun mapDbGameToGameModel(gameEntity: GameEntity): GameModel {
-        return GameModel(
-            id = gameEntity.gameId.toString(),
-            gameId = gameEntity.gameId,
-            name = gameEntity.name,
-            image = gameEntity.backgroundImage,
-            rating = gameEntity.rating,
-            releaseDate = gameEntity.releaseDate,
-            isLiked = gameEntity.isLiked
-        )
-    }
-
     private fun storeGames(gameListPojo: GameListPojo, page: Int) {
         if (page == 1) {
             gameDao.clearGames()
@@ -106,6 +95,54 @@ class GameRepository @Inject constructor(
                     isLiked = false
                 )
             }.toTypedArray())
+        }
+    }
+
+    suspend fun getGameDetail(id: Long) {
+
+        withContext(Dispatchers.IO) {
+            when (val result = networkHelper.getGameDetails(id)) {
+                is NetworkResult.Success -> {
+                    onGameDetailSuccess(result.data)
+                }
+                is NetworkResult.Error -> {
+                    channelGames.send(
+                        RepoResponse.Error(ErrorModel(code = result.error.code, message = result.error.message))
+                    )
+                }
+                is NetworkResult.Failure -> {
+                    channelGames.send(
+                        RepoResponse.Error(ErrorModel(exception = result.exception))
+                    )
+                }
+            }
+
+        }
+    }
+
+    private suspend fun onGameDetailSuccess(gamePojo: GamePojo) {
+        val id = gamePojo.id?:return
+        val gameEntity = gameDao.getGame(id)
+        gameEntity.name = gamePojo.name ?: ""
+        gameEntity.releaseDate = gamePojo.releaseDate
+        gameEntity.backgroundImage = gamePojo.backgroundImage
+        gameEntity.rating = gamePojo.rating
+        gameEntity.releaseDate = gamePojo.releaseDate
+        gameDao.update(gameEntity)
+        val gameModel = GameModel(gameEntity)
+        gameModel.description = gamePojo.description
+        gameModel.metacriticRate = gamePojo.metacritic
+        channelGames.send(
+            RepoResponse.Data(GameListModel(games = mutableListOf(gameModel)))
+        )
+    }
+
+
+    suspend fun toggleLike(gameId: Long) {
+        withContext(Dispatchers.IO) {
+            val entity = gameDao.getGame(gameId)
+            entity.isLiked = !entity.isLiked
+            gameDao.update(entity)
         }
     }
 

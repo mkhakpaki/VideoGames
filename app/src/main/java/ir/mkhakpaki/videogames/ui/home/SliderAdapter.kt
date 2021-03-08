@@ -12,9 +12,10 @@ import androidx.viewpager.widget.PagerAdapter
 import com.bumptech.glide.Glide
 import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.ui.model.GameItem
+import ir.mkhakpaki.videogames.util.GameCallBack
 
 
-class SliderAdapter (private val context: Context ) :
+class SliderAdapter (private val context: Context , private val gameCallBack: GameCallBack<GameItem>) :
     PagerAdapter() {
 
     private val items: MutableList<GameItem> = mutableListOf()
@@ -41,6 +42,10 @@ class SliderAdapter (private val context: Context ) :
         val imageLayout: View = inflater.inflate(R.layout.item_slide, view, false)
 
         val imageView: AppCompatImageView = imageLayout.findViewById(R.id.image) as AppCompatImageView
+
+        imageView.setOnClickListener {
+            gameCallBack.itemClick(items[position])
+        }
 
         val circularProgressDrawable = CircularProgressDrawable(context)
         circularProgressDrawable.strokeWidth = 5f

@@ -1,5 +1,6 @@
 package ir.mkhakpaki.videogames.ui.home
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,8 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.di.findAppComponent
 import ir.mkhakpaki.videogames.di.home.DaggerHomeComponent
+import ir.mkhakpaki.videogames.ui.gameDetails.GameDetailsActivity
+import ir.mkhakpaki.videogames.ui.gameDetails.GameDetailsViewModel
 import ir.mkhakpaki.videogames.ui.model.GameItem
+import ir.mkhakpaki.videogames.ui.model.GameModel
 import ir.mkhakpaki.videogames.ui.model.ViewStateModel
+import ir.mkhakpaki.videogames.util.Constants
 import ir.mkhakpaki.videogames.util.GameCallBack
 import ir.mkhakpaki.videogames.util.ListLoadMoreListener
 import ir.mkhakpaki.videogames.util.OnLoadMoreListener
@@ -66,7 +71,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupView() {
-        sliderAdapter = SliderAdapter(requireContext())
+        sliderAdapter = SliderAdapter(requireContext(), object : GameCallBack<GameItem>() {
+            override fun itemClick(item: GameItem) {
+                val model = item.game ?: return
+                openItem(model)
+            }
+        })
         sliderViewPager.adapter = sliderAdapter
         tabLayout.setupWithViewPager(sliderViewPager)
 
@@ -87,6 +97,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             override fun onTryAgain() {
                 viewModel.tryLoadMore()
             }
+
+            override fun itemClick(item: GameItem) {
+                val model = item.game ?: return
+                openItem(model)
+            }
         })
         gamesRv.layoutManager = layoutManager
         gamesRv.adapter = recyclerAdapter
@@ -99,5 +114,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         listLoadMoreListener?.release()
         listLoadMoreListener = null
         super.onDestroyView()
+    }
+
+    private fun openItem(gameModel: GameModel) {
+        Intent(requireContext(), GameDetailsActivity::class.java).apply {
+            putExtra(Constants.GAME_ID, gameModel.gameId)
+            putExtra(Constants.IMAGE_URL, gameModel.image)
+            putExtra(Constants.IS_LIKED, gameModel.isLiked)
+        }.also {
+            startActivity(it)
+        }
     }
 }

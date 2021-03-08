@@ -8,12 +8,15 @@ import com.bumptech.glide.Glide
 import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.ui.model.GameItem
 import ir.mkhakpaki.videogames.util.BaseAdapter
+import ir.mkhakpaki.videogames.util.GameCallBack
 
-class GameHolder(itemView: View) :
+class GameHolder(itemView: View, private val callBack: GameCallBack<GameItem>) :
     BaseAdapter.ChildViewHolder<GameItem>(itemView) {
+
     private lateinit var imageView: AppCompatImageView
     private lateinit var nameTv: AppCompatTextView
     private lateinit var detailsTv: AppCompatTextView
+    private lateinit var gameItem: GameItem
 
     init {
         setupHolder(this)
@@ -27,9 +30,13 @@ class GameHolder(itemView: View) :
         imageView = itemView.findViewById(R.id.imageView)
         nameTv = itemView.findViewById(R.id.nameTv)
         detailsTv = itemView.findViewById(R.id.detailTv)
+        itemView.setOnClickListener {
+            callBack.itemClick(gameItem)
+        }
     }
 
     override fun fillInData(t: GameItem) {
+        gameItem = t
         nameTv.text = t.game?.name
         val rating = t.game?.rating?.toString() ?: ""
         val released = t.game?.releaseDate ?: ""
