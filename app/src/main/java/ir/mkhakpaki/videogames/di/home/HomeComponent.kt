@@ -1,6 +1,8 @@
-package ir.mkhakpaki.videogames.di
+package ir.mkhakpaki.videogames.di.home
 
 import dagger.Component
+import ir.mkhakpaki.videogames.di.AppComponent
+import ir.mkhakpaki.videogames.di.ViewModelFactoryModule
 import ir.mkhakpaki.videogames.di.scope.PerFragment
 import ir.mkhakpaki.videogames.ui.home.HomeFragment
 

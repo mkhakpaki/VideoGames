@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import ir.mkhakpaki.videogames.R
-import ir.mkhakpaki.videogames.di.DaggerHomeComponent
 import ir.mkhakpaki.videogames.di.findAppComponent
+import ir.mkhakpaki.videogames.di.home.DaggerHomeComponent
 import ir.mkhakpaki.videogames.ui.model.GameItem
 import ir.mkhakpaki.videogames.ui.model.ViewStateModel
 import ir.mkhakpaki.videogames.util.GameCallBack

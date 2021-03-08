@@ -4,4 +4,6 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="favorite">Favorites</string>
     <string name="search">Search</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
 </resources>
