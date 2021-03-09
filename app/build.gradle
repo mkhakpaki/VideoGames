@@ -64,6 +64,7 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.27'
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:26.6.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-messaging'
     //Room
