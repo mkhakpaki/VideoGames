@@ -65,9 +65,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 ViewStateModel.LIST_END -> {
                     listLoadMoreListener?.ended = true
                 }
+                ViewStateModel.LOADING -> {
+                    loadingState()
+                }
+                ViewStateModel.DATA -> {
+                    dataState()
+                }
             }
         }
 
+    }
+
+    private fun dataState() {
+        pbLoading.visibility = View.GONE
+        sliderViewPager.visibility = View.VISIBLE
+        tabLayout.visibility = View.VISIBLE
+        gamesRv.visibility = View.VISIBLE
+    }
+
+    private fun loadingState() {
+        pbLoading.visibility = View.VISIBLE
+        sliderViewPager.visibility = View.GONE
+        tabLayout.visibility = View.GONE
+        gamesRv.visibility = View.GONE
     }
 
     private fun setupView() {
