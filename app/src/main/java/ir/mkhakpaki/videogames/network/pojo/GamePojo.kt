@@ -27,5 +27,7 @@ class GamePojo {
     @SerializedName("released")
     var releaseDate: String? = null
 
+    var isLiked:Boolean = false
+
 
 }

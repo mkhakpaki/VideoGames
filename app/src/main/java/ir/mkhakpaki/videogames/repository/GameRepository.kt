@@ -100,30 +100,35 @@ class GameRepository @Inject constructor(
     }
 
     private fun storeGames(gameListPojo: GameListPojo) {
-        gameListPojo.gameList?.let { gameList ->
-            val oldDbGames = gameDao.getAll().toMutableList()
-            gameDao.insertAll(*gameList.map {
-                GameEntity(
-                    gameId = it.id ?: 0,
-                    name = it.name ?: "",
-                    backgroundImage = it.backgroundImage,
-                    rating = it.rating,
-                    releaseDate = it.releaseDate,
+        val games = gameListPojo.gameList ?: return
+        games.forEach { pojo ->
+            val gameId = pojo.id ?: return@forEach
+            gameDao.getGame(gameId)?.let { entity ->
+                updateGame(entity, pojo)
+            } ?: kotlin.run {
+                val gameEntity = GameEntity(
+                    gameId = pojo.id ?: 0,
+                    name = pojo.name ?: "",
+                    backgroundImage = pojo.backgroundImage,
+                    rating = pojo.rating,
+                    releaseDate = pojo.releaseDate,
                     isLiked = false
                 )
-            }.toTypedArray())
-
-            oldDbGames.forEach { gameEntity ->
-                val gamePojo =
-                    gameListPojo.gameList?.find { it.id == gameEntity.gameId } ?: return@forEach
-                gameEntity.name = gamePojo.name ?: ""
-                gameEntity.releaseDate = gamePojo.releaseDate
-                gameEntity.backgroundImage = gamePojo.backgroundImage
-                gameEntity.rating = gamePojo.rating
-                gameEntity.releaseDate = gamePojo.releaseDate
-                gameDao.update(gameEntity)
+                gameDao.insert(gameEntity)
             }
         }
+    }
+
+    private fun updateGame(entity: GameEntity, pojo: GamePojo) {
+        pojo.name?.let {
+            entity.name = it
+        }
+        pojo.backgroundImage?.let {
+            entity.backgroundImage = it
+        }
+        entity.rating = pojo.rating
+        entity.releaseDate = pojo.releaseDate
+        gameDao.update(entity)
     }
 
     suspend fun getGameDetail(id: Long) {
@@ -155,7 +160,7 @@ class GameRepository @Inject constructor(
 
     private suspend fun onGameDetailSuccess(gamePojo: GamePojo) {
         val id = gamePojo.id ?: return
-        val gameEntity = gameDao.getGame(id)
+        val gameEntity = gameDao.getGame(id) ?: return
         gameEntity.name = gamePojo.name ?: ""
         gameEntity.releaseDate = gamePojo.releaseDate
         gameEntity.backgroundImage = gamePojo.backgroundImage
@@ -173,8 +178,8 @@ class GameRepository @Inject constructor(
 
     suspend fun toggleLike(gameId: Long) {
         withContext(Dispatchers.IO) {
-            val entity = gameDao.getGame(gameId)
-            entity.isLiked = !(entity.isLiked ?: false)
+            val entity = gameDao.getGame(gameId) ?: return@withContext
+            entity.isLiked = !entity.isLiked
             gameDao.update(entity)
         }
     }
