@@ -7,4 +7,5 @@
     <string name="fcm_message">FCM Message</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="check_your_connection">Check your Internet connection, it seems that you are offline</string>
+    <string name="no_favorites">You have not any favorite games</string>
 </resources>

@@ -15,6 +15,6 @@
         android:id="@+id/navigation_favorite"
         android:name="ir.mkhakpaki.videogames.ui.favorites.FavoritesFragment"
         android:label="@string/favorite"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_favorites" />
 
 </navigation>

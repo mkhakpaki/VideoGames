@@ -46,17 +46,18 @@ class HomeViewModel
                         }
 
                         checkEndOfList(data.ended)
-                        prepareListItems(response.data.games)
+                        processListItems(data.games)
                     }
                 }
             }
         }
         viewModelScope.launch {
+            _stateViewLiveData.value = ViewStateModel.LOADING
             repository.getAllGames(null)
         }
     }
 
-    private suspend fun prepareListItems(games: MutableList<GameModel>) {
+    private suspend fun processListItems(games: MutableList<GameModel>) {
         withContext(Dispatchers.Default) {
             items.clear()
             items.addAll(games.map {

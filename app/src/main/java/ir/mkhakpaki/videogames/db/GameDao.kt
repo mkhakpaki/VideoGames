@@ -9,7 +9,7 @@ interface GameDao {
     @Query("SELECT * FROM GameEntity ORDER BY id ASC")
     fun getAll(): List<GameEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(vararg games: GameEntity)
 
     @Query("SELECT * FROM GameEntity WHERE ${Constants.IS_LIKED} = 1")

@@ -1,6 +1,5 @@
 package ir.mkhakpaki.videogames.repository
 
-import android.util.Log
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity
 import ir.mkhakpaki.videogames.network.NetworkHelper
@@ -11,7 +10,6 @@ import ir.mkhakpaki.videogames.ui.model.ErrorModel
 import ir.mkhakpaki.videogames.ui.model.GameListModel
 import ir.mkhakpaki.videogames.ui.model.GameModel
 import ir.mkhakpaki.videogames.ui.model.RepoResponse
-import ir.mkhakpaki.videogames.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +30,7 @@ class GameRepository @Inject constructor(
         requestGameList(page)
     }
 
-    private suspend fun getGamesFromDB(ended:Boolean?, nextPage: Int?) {
+    private suspend fun getGamesFromDB(ended: Boolean?, nextPage: Int?) {
         withContext(Dispatchers.IO) {
             val dbGames = gameDao.getAll()
             if (dbGames.isNotEmpty()) {
@@ -49,18 +47,39 @@ class GameRepository @Inject constructor(
         }
     }
 
+
+    suspend fun getLikedGames() {
+        withContext(Dispatchers.IO) {
+            val dbGames = gameDao.getLikedGames()
+            channelGames.send(
+                RepoResponse.Data(
+                    GameListModel(
+                        games = dbGames.map { GameModel(it) }.toMutableList()
+                    )
+                )
+            )
+        }
+    }
+
     suspend fun requestGameList(page: Int?) {
         withContext(Dispatchers.IO) {
-            val result = networkHelper.listGames(page)
-            when (result) {
+            when (val result = networkHelper.listGames(page)) {
                 is NetworkResult.Success -> {
                     val gameLisPojo = result.data
-                    storeGames(gameLisPojo, page ?: 1)
-                    getGamesFromDB(gameLisPojo.nextPage == null, extractNextPage(gameLisPojo.nextPage))
+                    storeGames(gameLisPojo)
+                    getGamesFromDB(
+                        gameLisPojo.nextPage == null,
+                        extractNextPage(gameLisPojo.nextPage)
+                    )
                 }
                 is NetworkResult.Error -> {
                     channelGames.send(
-                        RepoResponse.Error(ErrorModel(code = result.error.code, message = result.error.message))
+                        RepoResponse.Error(
+                            ErrorModel(
+                                code = result.error.code,
+                                message = result.error.message
+                            )
+                        )
                     )
                 }
                 is NetworkResult.Failure -> {
@@ -80,11 +99,9 @@ class GameRepository @Inject constructor(
         return null
     }
 
-    private fun storeGames(gameListPojo: GameListPojo, page: Int) {
-        if (page == 1) {
-            gameDao.clearGames()
-        }
+    private fun storeGames(gameListPojo: GameListPojo) {
         gameListPojo.gameList?.let { gameList ->
+            val oldDbGames = gameDao.getAll().toMutableList()
             gameDao.insertAll(*gameList.map {
                 GameEntity(
                     gameId = it.id ?: 0,
@@ -95,6 +112,17 @@ class GameRepository @Inject constructor(
                     isLiked = false
                 )
             }.toTypedArray())
+
+            oldDbGames.forEach { gameEntity ->
+                val gamePojo =
+                    gameListPojo.gameList?.find { it.id == gameEntity.gameId } ?: return@forEach
+                gameEntity.name = gamePojo.name ?: ""
+                gameEntity.releaseDate = gamePojo.releaseDate
+                gameEntity.backgroundImage = gamePojo.backgroundImage
+                gameEntity.rating = gamePojo.rating
+                gameEntity.releaseDate = gamePojo.releaseDate
+                gameDao.update(gameEntity)
+            }
         }
     }
 
@@ -107,7 +135,12 @@ class GameRepository @Inject constructor(
                 }
                 is NetworkResult.Error -> {
                     channelGames.send(
-                        RepoResponse.Error(ErrorModel(code = result.error.code, message = result.error.message))
+                        RepoResponse.Error(
+                            ErrorModel(
+                                code = result.error.code,
+                                message = result.error.message
+                            )
+                        )
                     )
                 }
                 is NetworkResult.Failure -> {
@@ -121,7 +154,7 @@ class GameRepository @Inject constructor(
     }
 
     private suspend fun onGameDetailSuccess(gamePojo: GamePojo) {
-        val id = gamePojo.id?:return
+        val id = gamePojo.id ?: return
         val gameEntity = gameDao.getGame(id)
         gameEntity.name = gamePojo.name ?: ""
         gameEntity.releaseDate = gamePojo.releaseDate
@@ -141,7 +174,7 @@ class GameRepository @Inject constructor(
     suspend fun toggleLike(gameId: Long) {
         withContext(Dispatchers.IO) {
             val entity = gameDao.getGame(gameId)
-            entity.isLiked = !entity.isLiked
+            entity.isLiked = !(entity.isLiked ?: false)
             gameDao.update(entity)
         }
     }
