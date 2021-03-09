@@ -1,5 +1,6 @@
 package ir.mkhakpaki.videogames.repository
 
+import com.orhanobut.hawk.Hawk
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity
 import ir.mkhakpaki.videogames.network.NetworkHelper
@@ -10,6 +11,7 @@ import ir.mkhakpaki.videogames.ui.model.ErrorModel
 import ir.mkhakpaki.videogames.ui.model.GameListModel
 import ir.mkhakpaki.videogames.ui.model.GameModel
 import ir.mkhakpaki.videogames.ui.model.RepoResponse
+import ir.mkhakpaki.videogames.util.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -25,9 +27,8 @@ class GameRepository @Inject constructor(
     private val channelGames = Channel<RepoResponse<GameListModel, ErrorModel>>()
     val flowGames: Flow<RepoResponse<GameListModel, ErrorModel>> = channelGames.consumeAsFlow()
 
-    suspend fun getAllGames(page: Int?) {
+    suspend fun getAllGames() {
         getGamesFromDB(null, null)
-        requestGameList(page)
     }
 
     private suspend fun getGamesFromDB(ended: Boolean?, nextPage: Int?) {
@@ -43,7 +44,9 @@ class GameRepository @Inject constructor(
                         )
                     )
                 )
+                return@withContext
             }
+            requestGameList(1)
         }
     }
 
@@ -67,6 +70,8 @@ class GameRepository @Inject constructor(
                 is NetworkResult.Success -> {
                     val gameLisPojo = result.data
                     storeGames(gameLisPojo)
+                    val nextPage = extractNextPage(gameLisPojo.nextPage)
+                    Hawk.put(Constants.NEXT_PAGE_TO_REQUEST, nextPage)
                     getGamesFromDB(
                         gameLisPojo.nextPage == null,
                         extractNextPage(gameLisPojo.nextPage)

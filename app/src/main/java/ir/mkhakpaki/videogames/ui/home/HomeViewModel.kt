@@ -1,10 +1,12 @@
 package ir.mkhakpaki.videogames.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
+import com.orhanobut.hawk.Hawk
 import ir.mkhakpaki.videogames.repository.GameRepository
 import ir.mkhakpaki.videogames.ui.model.*
 import ir.mkhakpaki.videogames.util.Constants
@@ -33,6 +35,7 @@ class HomeViewModel
         private set
 
     init {
+        nextPage = Hawk.get(Constants.NEXT_PAGE_TO_REQUEST, 2)
         viewModelScope.launch {
             repository.flowGames.collect { response ->
                 when (response) {
@@ -53,7 +56,7 @@ class HomeViewModel
         }
         viewModelScope.launch {
             _stateViewLiveData.value = ViewStateModel.LOADING
-            repository.getAllGames(null)
+            repository.getAllGames()
         }
     }
 
@@ -98,6 +101,7 @@ class HomeViewModel
     }
 
     fun loadMore() {
+        Log.i("GAMEEEES", "loadMore: $nextPage")
         if (isFetchingItems || isEndOfList) return
         isFetchingItems = true
         viewModelScope.launch {

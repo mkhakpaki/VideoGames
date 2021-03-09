@@ -18,6 +18,7 @@ object Constants {
     const val KEEP_ALIVE_TIME = 10
     const val MAX_IDLE_CONNECTIONS = 5
     const val LIST_THRESHOLD = 6
+    const val NEXT_PAGE_TO_REQUEST = "NEXT_PAGE_TO_REQUEST"
 }
 
 object API_PATH {
