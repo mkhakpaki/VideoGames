@@ -101,7 +101,6 @@ class HomeViewModel
     }
 
     fun loadMore() {
-        Log.i("GAMEEEES", "loadMore: $nextPage")
         if (isFetchingItems || isEndOfList) return
         isFetchingItems = true
         viewModelScope.launch {
@@ -115,6 +114,15 @@ class HomeViewModel
         items.add(loadingItem)
         _itemsLiveData.value = items.toMutableList()
         loadMore()
+    }
+
+    fun refresh() {
+        if (isFetchingItems)
+            return
+        _stateViewLiveData.value = ViewStateModel.LOADING
+        viewModelScope.launch {
+            repository.refresh()
+        }
     }
 
     val gamesDiff = object : DiffUtil.ItemCallback<GameItem>() {

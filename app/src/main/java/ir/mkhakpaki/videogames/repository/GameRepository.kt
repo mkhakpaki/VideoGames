@@ -64,12 +64,12 @@ class GameRepository @Inject constructor(
         }
     }
 
-    suspend fun requestGameList(page: Int?) {
+    suspend fun requestGameList(page: Int?, likedGamIds:List<Long>? = null) {
         withContext(Dispatchers.IO) {
             when (val result = networkHelper.listGames(page)) {
                 is NetworkResult.Success -> {
                     val gameLisPojo = result.data
-                    storeGames(gameLisPojo)
+                    storeGames(gameLisPojo, likedGamIds)
                     val nextPage = extractNextPage(gameLisPojo.nextPage)
                     Hawk.put(Constants.NEXT_PAGE_TO_REQUEST, nextPage)
                     getGamesFromDB(
@@ -104,7 +104,7 @@ class GameRepository @Inject constructor(
         return null
     }
 
-    private fun storeGames(gameListPojo: GameListPojo) {
+    private fun storeGames(gameListPojo: GameListPojo, likedGamIds:List<Long>?) {
         val games = gameListPojo.gameList ?: return
         games.forEach { pojo ->
             val gameId = pojo.id ?: return@forEach
@@ -117,7 +117,7 @@ class GameRepository @Inject constructor(
                     backgroundImage = pojo.backgroundImage,
                     rating = pojo.rating,
                     releaseDate = pojo.releaseDate,
-                    isLiked = false
+                    isLiked = likedGamIds?.contains(pojo.id) ?: false
                 )
                 gameDao.insert(gameEntity)
             }
@@ -187,6 +187,18 @@ class GameRepository @Inject constructor(
             entity.isLiked = !entity.isLiked
             gameDao.update(entity)
         }
+    }
+
+    suspend fun refresh() {
+        withContext(Dispatchers.IO) {
+            val likedGameIds = gameDao.getLikedGames().map { it.gameId }
+            val storedNextPage:Int = Hawk.get(Constants.NEXT_PAGE_TO_REQUEST, 2)
+            gameDao.clearGames()
+            for (page:Int in 1 until storedNextPage) {
+                requestGameList(page, likedGameIds)
+            }
+        }
+
     }
 
 }

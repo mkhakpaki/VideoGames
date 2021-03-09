@@ -125,6 +125,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         })
         gamesRv.layoutManager = layoutManager
         gamesRv.adapter = recyclerAdapter
+
+        refreshLayout.setOnRefreshListener {
+            refreshLayout.isRefreshing = false
+            viewModel.refresh()
+        }
     }
 
     override fun onDestroyView() {
