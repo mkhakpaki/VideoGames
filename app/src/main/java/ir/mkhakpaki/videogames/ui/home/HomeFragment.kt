@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.tabs.TabLayoutMediator
 import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.di.findAppComponent
 import ir.mkhakpaki.videogames.di.home.DaggerHomeComponent
@@ -164,7 +165,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         })
         sliderViewPager.adapter = sliderAdapter
-        tabLayout.setupWithViewPager(sliderViewPager)
+        TabLayoutMediator(tabLayout, sliderViewPager) { tab, _ ->
+            sliderViewPager.setCurrentItem(tab.position, true)
+        }.attach()
 
         layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
         layoutManager?.let {
