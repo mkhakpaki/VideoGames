@@ -3,13 +3,10 @@ package ir.mkhakpaki.videogames.ui.gameDetails
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
-import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.BlendModeColorFilterCompat
-import androidx.core.graphics.BlendModeCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
@@ -126,7 +123,6 @@ class GameDetailsActivity : AppCompatActivity() {
     }
 
     private fun setLikeButtonState(liked: Boolean) {
-        Log.i("game", "setLikeButtonState: $liked")
         if (liked) {
             DrawableCompat.setTint(
                 DrawableCompat.wrap(likeIv.drawable),

@@ -23,7 +23,7 @@ abstract class BaseAdapter<T : ItemClass>(
         private const val MIN_LEGIT_TYPE = 3
     }
 
-    protected var inflater: LayoutInflater? = null
+    private var inflater: LayoutInflater? = null
 
     abstract class ChildViewHolder<T>(view: View) : RecyclerView.ViewHolder(view) {
         abstract fun fillInData(t: T)
@@ -51,7 +51,7 @@ abstract class BaseAdapter<T : ItemClass>(
             else -> {
                 val childType = getChildItemViewType(position)
                 if (childType < MIN_LEGIT_TYPE) {
-                    throw IllegalStateException("You must use a number of 10 or greater for the type")
+                    throw IllegalStateException("You must use a number of $MIN_LEGIT_TYPE or greater for the type")
                 }
                 childType
             }

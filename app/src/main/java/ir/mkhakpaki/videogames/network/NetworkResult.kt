@@ -8,6 +8,3 @@ sealed class NetworkResult<out R : Any> {
     data class Error(val error: ErrorModel) : NetworkResult<Nothing>()
     data class Failure(val exception: Exception) : NetworkResult<Nothing>()
 }
-
-val <T> T.exhaustive: T
-    get() = this
