@@ -1,6 +1,5 @@
 package ir.mkhakpaki.videogames.repository
 
-import android.util.Log
 import com.orhanobut.hawk.Hawk
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity

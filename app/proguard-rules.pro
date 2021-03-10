@@ -19,3 +19,34 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+
+#General options
+-keepattributes SourceFile,LineNumberTable
+-printmapping mapping.txt
+
+#MODELS
+-keep class ir.mkhakpaki.videogames.network.pojo.** { *; }
+-keep class ir.mkhakpaki.videogames.ui.model.**  { *; }
+
+#GSON
+# Gson uses generic type information stored in a class file when working with fields. Proguard
+# removes such information by default, so configure it to keep all of it.
+-keepattributes Signature
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+# Gson specific classes
+-dontwarn sun.misc.**
+
+
+#Retrofit
+-keep class retrofit.** { *; }
+-keepclassmembernames interface * {
+    @retrofit.http.* <methods>;
+}
+-dontwarn com.squareup.okhttp.**
+# Top-level functions that can only be used by Kotlin.
+-dontwarn retrofit2.-KotlinExtensions
+
