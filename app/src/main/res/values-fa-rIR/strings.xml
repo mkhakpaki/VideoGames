@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VideoGames</string>
+    <string name="title_home">خانه</string>
+    <string name="favorite">مورد علاقه</string>
+    <string name="search">جستجو</string>
+    <string name="check_your_connection">لطفا وضعیت اتصال به اینترنت را کنترل کنید به نظر میرسد آفلاین هستید</string>
+    <string name="no_favorites">هیچ بازی مورد علاقه ای ندارید</string>
+    <string name="no_games_found">متاسفانه بازی پیدا نشد</string>
+</resources>

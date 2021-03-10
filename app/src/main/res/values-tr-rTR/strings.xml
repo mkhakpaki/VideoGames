@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VideoGames</string>
+    <string name="title_home">Ev</string>
+    <string name="favorite">Favoriler</string>
+    <string name="search">Arama</string>
+    <string name="check_your_connection">Lütfen Internet bağlantınızı kontrol ediniz</string>
+    <string name="no_favorites">Favori oyunların yok</string>
+    <string name="no_games_found">Üzgünüz, aradığınız oyun bulunamadı!</string>
+</resources>
