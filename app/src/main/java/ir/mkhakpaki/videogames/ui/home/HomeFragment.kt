@@ -195,6 +195,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         refreshLayout.setOnRefreshListener {
             refreshLayout.isRefreshing = false
+            listLoadMoreListener?.ended = false
             viewModel.refresh()
         }
 
