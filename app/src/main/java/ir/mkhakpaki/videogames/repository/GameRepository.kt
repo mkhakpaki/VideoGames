@@ -1,5 +1,6 @@
 package ir.mkhakpaki.videogames.repository
 
+import android.util.Log
 import com.orhanobut.hawk.Hawk
 import ir.mkhakpaki.videogames.db.GameDao
 import ir.mkhakpaki.videogames.db.GameEntity
@@ -64,7 +65,7 @@ class GameRepository @Inject constructor(
         }
     }
 
-    suspend fun requestGameList(page: Int?, likedGamIds:List<Long>? = null) {
+    suspend fun requestGameList(page: Int?, likedGamIds: List<Long>? = null) {
         withContext(Dispatchers.IO) {
             when (val result = networkHelper.listGames(page)) {
                 is NetworkResult.Success -> {
@@ -104,7 +105,7 @@ class GameRepository @Inject constructor(
         return null
     }
 
-    private fun storeGames(gameListPojo: GameListPojo, likedGamIds:List<Long>?) {
+    private fun storeGames(gameListPojo: GameListPojo, likedGamIds: List<Long>?) {
         val games = gameListPojo.gameList ?: return
         games.forEach { pojo ->
             val gameId = pojo.id ?: return@forEach
@@ -189,12 +190,26 @@ class GameRepository @Inject constructor(
         }
     }
 
+    suspend fun searchGames(query: String) {
+        withContext(Dispatchers.IO) {
+            val games = gameDao.searchGames("%${query}%")
+            channelGames.send(
+                RepoResponse.Data(
+                    GameListModel(
+                        isSearchMode = true,
+                        games = games.map { GameModel(it) }.toMutableList()
+                    )
+                )
+            )
+        }
+    }
+
     suspend fun refresh() {
         withContext(Dispatchers.IO) {
             val likedGameIds = gameDao.getLikedGames().map { it.gameId }
-            val storedNextPage:Int = Hawk.get(Constants.NEXT_PAGE_TO_REQUEST, 2)
+            val storedNextPage: Int = Hawk.get(Constants.NEXT_PAGE_TO_REQUEST, 2)
             gameDao.clearGames()
-            for (page:Int in 1 until storedNextPage) {
+            for (page: Int in 1 until storedNextPage) {
                 requestGameList(page, likedGameIds)
             }
         }

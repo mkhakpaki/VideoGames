@@ -25,6 +25,9 @@ class HomeViewModel
     private val _itemsLiveData = MutableLiveData<List<GameItem>>()
     val itemsLiveData: LiveData<List<GameItem>> = _itemsLiveData
 
+    private val _searchItemsLiveData = MutableLiveData<List<GameItem>>()
+    val searchItemsLiveData: LiveData<List<GameItem>> = _searchItemsLiveData
+
     private val loadingItem = GameItem.makeLoadingItem()
     private val errorItem = GameItem.makeErrorItem()
     private var isFetchingItems = false
@@ -42,14 +45,22 @@ class HomeViewModel
                     is RepoResponse.Error -> handleDataError(response.error)
                     is RepoResponse.Data -> {
                         val data = response.data
-                        isFetchingItems = false
-                        _stateViewLiveData.value = ViewStateModel.DATA
-                        data.nextPage?.let {
-                            nextPage = it
-                        }
+                        if (data.isSearchMode == true) {
+                            if (data.games.isNullOrEmpty()) {
+                                _stateViewLiveData.postValue(ViewStateModel.EMPTY)
+                                return@collect
+                            }
+                            handleSearchResult(data)
+                        } else {
+                            isFetchingItems = false
+                            _stateViewLiveData.value = ViewStateModel.DATA
+                            data.nextPage?.let {
+                                nextPage = it
+                            }
 
-                        checkEndOfList(data.ended)
-                        processListItems(data.games)
+                            checkEndOfList(data.ended)
+                            processListItems(data.games)
+                        }
                     }
                 }
             }
@@ -58,6 +69,24 @@ class HomeViewModel
             _stateViewLiveData.value = ViewStateModel.LOADING
             repository.getAllGames()
         }
+    }
+
+    private suspend fun handleSearchResult(data: GameListModel) {
+        withContext(Dispatchers.Default) {
+            _stateViewLiveData.postValue(ViewStateModel.SEARCH)
+            _searchItemsLiveData.postValue(data.games.map {
+                GameItem(
+                    type = Constants.TYPE_GAME_ITEM_LIST,
+                    id = it.gameId,
+                    game = it
+                )
+            }.toMutableList())
+        }
+    }
+
+    fun closeSearch() {
+        _stateViewLiveData.value = ViewStateModel.DATA
+        _itemsLiveData.value = items.toMutableList()
     }
 
     private suspend fun processListItems(games: MutableList<GameModel>) {
@@ -122,6 +151,12 @@ class HomeViewModel
         _stateViewLiveData.value = ViewStateModel.LOADING
         viewModelScope.launch {
             repository.refresh()
+        }
+    }
+
+    fun searchGames(query: String) {
+        viewModelScope.launch {
+            repository.searchGames(query)
         }
     }
 

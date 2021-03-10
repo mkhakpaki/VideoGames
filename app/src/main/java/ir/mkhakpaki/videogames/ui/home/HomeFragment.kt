@@ -2,8 +2,9 @@ package ir.mkhakpaki.videogames.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -13,7 +14,6 @@ import ir.mkhakpaki.videogames.R
 import ir.mkhakpaki.videogames.di.findAppComponent
 import ir.mkhakpaki.videogames.di.home.DaggerHomeComponent
 import ir.mkhakpaki.videogames.ui.gameDetails.GameDetailsActivity
-import ir.mkhakpaki.videogames.ui.gameDetails.GameDetailsViewModel
 import ir.mkhakpaki.videogames.ui.model.GameItem
 import ir.mkhakpaki.videogames.ui.model.GameModel
 import ir.mkhakpaki.videogames.ui.model.ViewStateModel
@@ -60,34 +60,100 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         }
 
+        viewModel.searchItemsLiveData.observe(viewLifecycleOwner) {
+            listLoadMoreListener?.ended = true
+            listLoadMoreListener?.setLoaded(false)
+            recyclerAdapter?.submitList(it)
+        }
+
         viewModel.stateViewLiveData.observe(viewLifecycleOwner) {
             when (it) {
+
                 ViewStateModel.LIST_END -> {
                     listLoadMoreListener?.ended = true
                 }
+
                 ViewStateModel.LOADING -> {
                     loadingState()
                 }
+
                 ViewStateModel.DATA -> {
                     dataState()
+                }
+
+                ViewStateModel.EMPTY -> {
+                    emptyState()
+                }
+
+                ViewStateModel.SEARCH -> {
+                    searchState()
                 }
             }
         }
 
     }
 
+    private fun emptyState() {
+        pbLoading.visibility = View.GONE
+        sliderViewPager.visibility = View.GONE
+        tabLayout.visibility = View.GONE
+        refreshLayout.visibility = View.GONE
+        emptyTv.visibility = View.VISIBLE
+    }
+
+    private fun searchState() {
+        pbLoading.visibility = View.VISIBLE
+        sliderViewPager.visibility = View.GONE
+        emptyTv.visibility = View.GONE
+        pbLoading.visibility = View.GONE
+        tabLayout.visibility = View.GONE
+        refreshLayout.apply {
+            visibility = View.VISIBLE
+            isEnabled = false
+            val params = layoutParams as ConstraintLayout.LayoutParams
+            params.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            params.height = 0
+            params.topMargin = resources.getDimensionPixelSize(R.dimen.margin_8)
+            params.leftMargin = resources.getDimensionPixelSize(R.dimen.margin_12)
+            params.rightMargin = resources.getDimensionPixelSize(R.dimen.margin_12)
+            params.startToStart = root.id
+            params.endToEnd = root.id
+            params.bottomToBottom = root.id
+            params.topToBottom = searchView.id
+            layoutParams = params
+            requestLayout()
+        }
+    }
+
     private fun dataState() {
         pbLoading.visibility = View.GONE
         sliderViewPager.visibility = View.VISIBLE
         tabLayout.visibility = View.VISIBLE
-        gamesRv.visibility = View.VISIBLE
+        emptyTv.visibility = View.GONE
+        refreshLayout.apply {
+            visibility = View.VISIBLE
+            isEnabled = true
+            val params = layoutParams as ConstraintLayout.LayoutParams
+            params.width = ConstraintLayout.LayoutParams.MATCH_PARENT
+            params.height = 0
+            params.topMargin = resources.getDimensionPixelSize(R.dimen.margin_8)
+            params.leftMargin = resources.getDimensionPixelSize(R.dimen.margin_12)
+            params.rightMargin = resources.getDimensionPixelSize(R.dimen.margin_12)
+            params.startToStart = root.id
+            params.endToEnd = root.id
+            params.bottomToBottom = root.id
+            params.topToBottom = tabLayout.id
+            layoutParams = params
+            requestLayout()
+        }
     }
 
     private fun loadingState() {
         pbLoading.visibility = View.VISIBLE
         sliderViewPager.visibility = View.GONE
         tabLayout.visibility = View.GONE
-        gamesRv.visibility = View.GONE
+        refreshLayout.visibility = View.GONE
+        emptyTv.visibility = View.GONE
     }
 
     private fun setupView() {
@@ -113,22 +179,35 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 gamesRv.addOnScrollListener(it)
             }
         }
-        recyclerAdapter = GamesRecyclerAdapter(viewModel.gamesDiff, object : GameCallBack<GameItem>() {
-            override fun onTryAgain() {
-                viewModel.tryLoadMore()
-            }
+        recyclerAdapter =
+            GamesRecyclerAdapter(viewModel.gamesDiff, object : GameCallBack<GameItem>() {
+                override fun onTryAgain() {
+                    viewModel.tryLoadMore()
+                }
 
-            override fun itemClick(item: GameItem) {
-                val model = item.game ?: return
-                openItem(model)
-            }
-        })
+                override fun itemClick(item: GameItem) {
+                    val model = item.game ?: return
+                    openItem(model)
+                }
+            })
         gamesRv.layoutManager = layoutManager
         gamesRv.adapter = recyclerAdapter
 
         refreshLayout.setOnRefreshListener {
             refreshLayout.isRefreshing = false
             viewModel.refresh()
+        }
+
+        searchEt.doAfterTextChanged {
+            it?.toString()?.let { query ->
+                if (query.length >= 3) {
+                    viewModel.searchGames(query)
+                } else if (query.isEmpty()) {
+                    viewModel.closeSearch()
+                }
+            } ?: kotlin.run {
+                viewModel.closeSearch()
+            }
         }
     }
 

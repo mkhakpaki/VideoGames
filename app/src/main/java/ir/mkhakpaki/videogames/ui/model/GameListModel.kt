@@ -4,5 +4,6 @@ data class GameListModel(
     var games: MutableList<GameModel> = mutableListOf(),
     var page: Int = 0,
     val nextPage: Int? = null,
-    val ended:Boolean? = null
+    val ended:Boolean? = null,
+    val isSearchMode:Boolean? = null
 )

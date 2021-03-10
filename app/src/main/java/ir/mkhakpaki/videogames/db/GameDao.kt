@@ -27,4 +27,7 @@ interface GameDao {
     @Update(entity = GameEntity::class)
     fun update(obj: GameEntity)
 
+    @Query("SELECT * FROM GameEntity WHERE ${Constants.NAME} LIKE :search")
+    fun searchGames(search: String):  List<GameEntity>
+
 }

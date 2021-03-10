@@ -4,14 +4,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ListLoadMoreListener : RecyclerView.OnScrollListener {
+class ListLoadMoreListener(layoutManager: LinearLayoutManager) : RecyclerView.OnScrollListener() {
 
     private var visibleThreshold = Constants.LIST_THRESHOLD
     private lateinit var mOnLoadMoreListener: OnLoadMoreListener
     private var isLoading: Boolean = false
     private var lastVisibleItem: Int = 0
     private var totalItemCount: Int = 0
-    private var mLayoutManager: RecyclerView.LayoutManager?
+    private var mLayoutManager: RecyclerView.LayoutManager? = layoutManager
     var ended: Boolean = false
 
     fun release() {
@@ -22,25 +22,8 @@ class ListLoadMoreListener : RecyclerView.OnScrollListener {
         isLoading = loading
     }
 
-    fun setThreshold(threshold: Int) {
-        visibleThreshold = threshold
-    }
-
-    fun getLoaded(): Boolean {
-        return isLoading
-    }
-
     fun setOnLoadMoreListener(mOnLoadMoreListener: OnLoadMoreListener) {
         this.mOnLoadMoreListener = mOnLoadMoreListener
-    }
-
-    constructor(layoutManager: LinearLayoutManager) {
-        this.mLayoutManager = layoutManager
-    }
-
-    constructor(layoutManager: GridLayoutManager) {
-        this.mLayoutManager = layoutManager
-        visibleThreshold *= layoutManager.spanCount
     }
 
 
